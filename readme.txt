@@ -21,19 +21,22 @@ If you disable this plugin, showbanned comments will become visible to all users
 For the latest instructions and more information, please see the [Plugin Homepage](http://anothercoffee.net/feenban/)
 
 **Licensing**
+
 All code is released under The MIT License (also known as the "Expat License"
 by the Free Software Foundation). Please see LICENSE.txt.
 
-Although this plugin has been released under a license compatible with the GPL2 as stipulated by the [WordPress guidelines](http://codex.wordpress.org/Writing_a_Plugin#File_Headers). However, users are encouraged to checkout the *BipCot NoGov license* from the Beastlick Internet Policy Commission Outreach Team: http://bipcot.org
+Although this plugin has been released under a license compatible with the GPL2 as stipulated by the [WordPress guidelines](http://codex.wordpress.org/Writing_a_Plugin#File_Headers), users are encouraged to checkout the *BipCot NoGov license* from the Beastlick Internet Policy Commission Outreach Team: http://bipcot.org
 
 == Installation ==
 
 **Installation**
+
 1. Upload the FeenBan to your '/wp-content/plugins/' directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 
 
 **To shadowban a user:**
+
 1. Select Users > All Users in the dashboard menu.
 2. Edit the user you want to shadow ban.
 3. Check the Shadow ban checkbox towards the bottom of the page.
