@@ -12,7 +12,7 @@ FeenBan is a simple WordPress plugin that implements user shadowbanning/hellbann
 
 == Description ==
 
-FeenBan is a simple WordPress plugin that implements user [shadowbanning/hellbanning](http://en.wikipedia.org/wiki/Hellbanning) for comments.
+FeenBan is a simple WordPress plugin that implements user [shadowbanning](http://en.wikipedia.org/wiki/Hellbanning) (or hellbanning) for comments.
 
 Comments by shadowbanned users will be invisible to all other users. However, the shadowbanned users will continue to see their own comments, hopefully oblivious to the fact that they've been shadowbanned. This is non-destructive in that changes are not made to the comments themselves. Shadowbanned comments are still saved to the database and visible to admins in the dashboard comments listing. All that happens is that a 'shadowban' flag is set in the user metadata. (Please note that this metadata will in no way cause the user to be droned.)
 
@@ -20,13 +20,13 @@ If you disable this plugin, showbanned comments will become visible to all users
 
 For the latest instructions and more information, please see the [Plugin Homepage](http://anothercoffee.net/feenban/)
 
-** Licensing **
+**Licensing**
 
 All code is released under The MIT License (also known as the "Expat License"
 by the Free Software Foundation).
 Please see LICENSE.txt.
 
-This plugin has been released under a license compatible with the GPL2 as stipulated by the [WordPress guidelines](http://codex.wordpress.org/Writing_a_Plugin#File_Headers). However, users are encouraged to checkout the BipCot NoGov license from the Beastlick Internet Policy Commission Outreach Team: http://bipcot.org
+This plugin has been released under a license compatible with the GPL2 as stipulated by the [WordPress guidelines](http://codex.wordpress.org/Writing_a_Plugin#File_Headers). However, users are encouraged to checkout the *BipCot NoGov license* from the Beastlick Internet Policy Commission Outreach Team: http://bipcot.org
 
 == Installation ==
 
