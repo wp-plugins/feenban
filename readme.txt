@@ -20,7 +20,7 @@ If you disable this plugin, showbanned comments will become visible to all users
 
 For the latest instructions and more information, please see the [Plugin Homepage](http://anothercoffee.net/feenban/)
 
-# Licensing
+** Licensing **
 
 All code is released under The MIT License (also known as the "Expat License"
 by the Free Software Foundation).
