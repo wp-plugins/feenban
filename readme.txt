@@ -14,7 +14,7 @@ FeenBan is a WordPress plugin for shadowbanning / hellbanning commenters.
 
 FeenBan is a simple WordPress plugin that implements user [shadowbanning](http://en.wikipedia.org/wiki/Hellbanning) (or hellbanning) for comments.
 
-Comments by shadowbanned users will be invisible to all other users. However, the shadowbanned users will continue to see their own comments, hopefully oblivious to the fact that they've been shadowbanned. This is non-destructive in that changes are not made to the comments themselves. Shadowbanned comments are still saved to the database and visible to admins in the dashboard comments listing. All that happens is that a 'shadowban' flag is set in the user metadata. (Please note that this metadata will in no way cause the user to be droned.)
+Comments by shadowbanned users will be invisible to all other users. However, the shadowbanned users will continue to see their own comments, hopefully oblivious to the fact that they've been shadowbanned. This is non-destructive in that changes are not made to the comments themselves. Shadowbanned comments are still saved to the database and visible to admins in the dashboard comments listing. All that happens is that a 'shadowban' flag is set in the user metadata.
 
 If you disable this plugin, showbanned comments will become visible to all users.
 
