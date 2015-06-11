@@ -3,7 +3,7 @@
 * Plugin Name: FeenBan
 * Plugin URI: http://anothercoffee.net/feenban
 * Description: A plugin for shadowbanning commenters.
-* Version: 0.1
+* Version: 0.2
 * Author: Anthony Lopez-Vito
 * Author URI: http://anothercoffee.net
 **/
@@ -17,7 +17,7 @@ defined('ABSPATH') or die("No script kiddies please!");
 /* 
  * Defs
  */
-define( 'FEENBAN_VERSION', '0.1' );
+define( 'FEENBAN_VERSION', '0.2' );
 define( 'FEENBAN_REQUIRED_WP_VERSION', '3.9' );
 define( 'FEENBAN_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 define( 'FEENBAN_PLUGIN_NAME', trim( dirname( FEENBAN_PLUGIN_BASENAME ), '/' ) );
@@ -25,7 +25,8 @@ define( 'FEENBAN_PLUGIN_URL', WP_PLUGIN_URL."/".dirname( plugin_basename( __FILE
 define( 'FEENBAN_PLUGIN_DIR', WP_PLUGIN_DIR."/".dirname( plugin_basename( __FILE__ ) ) );
 define( 'FEENBAN_PLUGIN_MODULES_DIR', FEENBAN_PLUGIN_DIR . '/modules' );
 define( 'FEENBAN_TEMPLATE_COMMENTS', '/feenban-comments.php' );
-
+define( 'FEENBAN_AUTHOR_METAKEY_BANNED', 'acc_feenbanned');
+define( 'FEENBAN_DEFAULT_NOTIFICATION_MSG', 'Comment not displayed due to shadowban.');
 
 /***
  *
@@ -86,7 +87,7 @@ function feenban_comments_callback( $comment, $args, $depth ) {
 		$user_owns_comment = true;
 	}
 	
-	$shadowbanned_meta = get_the_author_meta( 'shadowbanned', $comment_author_id );	
+	$shadowbanned_meta = get_the_author_meta( FEENBAN_AUTHOR_METAKEY_BANNED, $comment_author_id );	
 	$author_is_shadowbanned	= false;
 	if ( !empty($shadowbanned_meta) ){
 		if (strcasecmp($shadowbanned_meta, "true") == 0) {
@@ -95,21 +96,30 @@ function feenban_comments_callback( $comment, $args, $depth ) {
 	}
 	
 	$user_is_shadowbanned = false;
-	$shadowbanned_meta = get_the_author_meta( 'shadowbanned', $comment_author_id );
+	$shadowbanned_meta = get_the_author_meta( FEENBAN_AUTHOR_METAKEY_BANNED, $comment_author_id );
 	if ( !empty($shadowbanned_meta) ){
 		if (strcasecmp($shadowbanned_meta, "true") == 0) {
 			$user_is_shadowbanned = true;
 		}
 	}	
-	?>
-	
-	<li <?php comment_class(); ?> id="comment-<?php comment_ID(); ?>">
-        <article id="div-comment-<?php comment_ID(); ?>" class="comment-body">
-	
-	<?php
+
 	if ( ($user_owns_comment == false) && $author_is_shadowbanned  ) {
-		echo "<div class=\"shadowban\"><p>Comment not displayed due to shadowban.</p></div>";
+		$options = get_option('feenban_option_name');		
+		$status = $options['show_status'];		
+		if (strcasecmp($status, "true") == 0) {		
+		?>		
+			<li <?php comment_class(); ?> id="comment-<?php comment_ID(); ?>">
+	        	<article id="div-comment-<?php comment_ID(); ?>" class="comment-body">	
+		<?php
+			$options = get_option('feenban_option_name');
+			$notification_string = $options['notification_string'];
+			echo "<div class=\"shadowban\"><p>".esc_html($notification_string)."</p></div>";			
+		}
 	} else {
+		?>
+		<li <?php comment_class(); ?> id="comment-<?php comment_ID(); ?>">
+	        <article id="div-comment-<?php comment_ID(); ?>" class="comment-body">	
+		<?php		
 		feenban_display_comment($comment, $args, $depth);
 	}
 	
@@ -174,7 +184,7 @@ function feenban_display_comment($comment, $args, $depth) {
 function add_shadowban_setting( $user )
 {
 	if ( current_user_can( 'edit_users' ) ) {
-		$shadowbanned_meta = esc_attr(get_the_author_meta( 'shadowbanned', $user->ID ));	
+		$shadowbanned_meta = esc_attr(get_the_author_meta( FEENBAN_AUTHOR_METAKEY_BANNED, $user->ID ));	
 		$is_shadowbanned = false;
 		if ( !empty($shadowbanned_meta) ){
 			if (strcasecmp($shadowbanned_meta, "true") == 0) {
@@ -188,7 +198,7 @@ function add_shadowban_setting( $user )
 	            <tr>
 	                <th><label for="facebook_profile">Shadow ban user</label></th>
 	                <td>
-						<input type="checkbox" name="shadowbanned" value="true" 
+						<input type="checkbox" name="acc_feenbanned" value="true" 
 						<?php
 						if ($is_shadowbanned) {
 							echo "checked=\"checked\"";
@@ -206,21 +216,131 @@ add_action( 'edit_user_profile', 'add_shadowban_setting' );
 
 
 /***
- * 
+ *
  */
 function save_shadowban_setting( $user_id )
 {
 	$meta_value = "false";
-	if (isset($_POST['shadowbanned'])) {
-		if (strcasecmp($_POST['shadowbanned'], "true") == 0) {
+	if (isset($_POST['acc_feenbanned'])) {
+		if (strcasecmp($_POST['acc_feenbanned'], "true") == 0) {
 			$meta_value = "true";
 		}
 	}
     update_user_meta( 
 		$user_id,
-		'shadowbanned',
+		FEENBAN_AUTHOR_METAKEY_BANNED,
 		$meta_value
 	);
 }
 add_action( 'personal_options_update', 'save_shadowban_setting' );
 add_action( 'edit_user_profile_update', 'save_shadowban_setting' );
+
+
+
+/***
+ * Use Settings API to handle plugin settings
+ */
+add_action('admin_menu', 'feenban_admin_add_page');
+function feenban_admin_add_page() {
+	add_options_page(
+		'FeenBan Settings',
+		'FeenBan',
+		'manage_options',
+		'feenban_settings',
+		'feenban_options_page'
+		);
+}
+
+function feenban_options_page() {
+	if(!current_user_can('manage_options')) {
+		die('You do not have access to this page');
+	}
+	
+	?>
+	<div>
+	<h2>FeenBan</h2>
+	<form action="options.php" method="post">
+	<?php settings_fields('feenban_options_group'); ?>
+	<?php do_settings_sections('feenban_settings'); ?>
+ 
+	<input name="Submit" type="submit" value="<?php esc_attr_e('Save Changes'); ?>" />
+	</form></div>
+ 
+	<?php
+}
+
+add_action('admin_init', 'feenban_admin_init');
+function feenban_admin_init() {
+	register_setting( 
+		'feenban_options_group',
+		'feenban_option_name',
+		'feenban_options_validate'
+	);
+	add_settings_section(
+		'feenban_main',
+		'Display settings',
+		'feenban_section_text',
+		'feenban_settings'
+	);
+	add_settings_field(
+		'feenban_show_status',
+		'Show shadowban status',
+		'feenban_setting_show_status',
+		'feenban_settings',
+		'feenban_main'
+	);
+	add_settings_field(
+		'feenban_notification_string',
+		'Banned message',
+		'feenban_notification_string',
+		'feenban_settings',
+		'feenban_main'
+	);	
+}
+
+function feenban_section_text() {
+	echo '<p>Do you want to let readers know that you have shadowbanning moderation in place?</p>';
+}
+
+function feenban_notification_string() {
+	$options = get_option('feenban_option_name');
+	echo "<input id='feenban_notification_string' name='feenban_option_name[notification_string]' size='40' type='text' value='{$options['notification_string']}' />";
+	echo "<p class=\"description\">Message shown to comment readers when a comment author has been shadowbanned. Only displayed when you have <strong>Show shadowban status</strong> turned on.</p>";
+}
+
+
+/*
+ * Option to show notice that a comment author has been shadowbanned
+ */
+function feenban_setting_show_status() {
+	$options = get_option('feenban_option_name');
+	$value = $options['show_status'];
+
+	echo "<input type=\"checkbox\" name=\"feenban_option_name[show_status]\" value=\"true\""; 
+	if (strcasecmp($value, "true") == 0) {
+		echo "checked=\"checked\"";
+	}
+	echo "/ > Notify reader in comments section that a comment author has been shadowbanned";
+	echo "<p class=\"description\">Turn this off if you don't want to make it obvious that you are shadow banning comments.</p>";
+}
+
+
+function feenban_options_validate($input) {
+	$options = get_option('feenban_option_name');	
+	$options['notification_string'] = FEENBAN_DEFAULT_NOTIFICATION_MSG;
+	$message = trim($input['notification_string']);
+	
+	if(!empty($message))
+	{
+		$options['notification_string'] = sanitize_text_field($message);
+	}
+	
+	$options['show_status'] = trim($input['show_status']);
+	if (strcasecmp($options['show_status'], "true") == 0) {
+		$options['show_status'] = 'true';
+	} else {
+		$options['show_status'] = 'false';		
+	}
+	
+	return $options;
+}

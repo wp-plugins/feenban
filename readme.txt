@@ -31,7 +31,7 @@ Although this plugin has been released under a license compatible with the GPL2 
 
 **Installation**
 
-1. Upload the FeenBan to your '/wp-content/plugins/' directory
+1. Upload the FeenBan folder to your '/wp-content/plugins/' directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 
 
@@ -65,12 +65,19 @@ Both of these are so easy to work around. The shadowbanned user can discover the
 
 == Changelog ==
 
+= 0.2 =
+* Added uninstall script
+* Added option to let readers know shadowbanning moderation is in place
+
 = 0.1 =
 * Shadowban checkbox in user control panel
 * Shadowbanned user's comment is invisible to all but the user
 
 
 == Upgrade Notice ==
+
+= 0.2 =
+Changed Author meta_key from 'shadowbanned' to 'acc_feenbanned'. You'll need to reactivate shadowban setting for all banned users.
 
 = 0.1 =
 First version. No upgrade notices.
